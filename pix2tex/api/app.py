@@ -5,6 +5,7 @@ from fastapi import FastAPI, File, UploadFile, Form
 from PIL import Image
 from io import BytesIO
 from pix2tex.cli import LatexOCR
+import base64
 
 model = None
 app = FastAPI(title='pix2tex API')
@@ -18,6 +19,7 @@ def read_imagefile(file) -> Image.Image:
 @app.on_event('startup')
 async def load_model():
     global model
+    print('Logged')
     if model is None:
         model = LatexOCR()
 
@@ -61,4 +63,19 @@ async def predict_from_bytes(file: bytes = File(...)) -> str:  # , size: str = F
     global model
     #size = tuple(int(a) for a in size.split(','))
     image = Image.open(BytesIO(file))
+    return model(image, resize=False)
+
+@app.post('/bytes_as_str/')
+async def predict_from_bytes(b64_image: str) -> str:  # , size: str = Form(...)
+    """Predict the Latex code from a byte array
+
+    Args:
+        file (bytes, optional): Image as byte array. Defaults to File(...).
+
+    Returns:
+        str: Latex prediction
+    """
+    global model
+    bytes_decoded = base64.b64decode(b64_image)
+    image = Image.open(BytesIO(bytes_decoded))
     return model(image, resize=False)
