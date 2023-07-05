@@ -66,7 +66,7 @@ async def predict_from_bytes(file: bytes = File(...)) -> str:  # , size: str = F
     return model(image, resize=False)
 
 @app.post('/bytes_as_str/')
-async def predict_from_bytes(b64_image: str) -> str:  # , size: str = Form(...)
+async def predict_from_bytes_str(b64_image: str) -> str:  # , size: str = Form(...)
     """Predict the Latex code from a byte array
 
     Args:
